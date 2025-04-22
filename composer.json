@@ -1,0 +1,22 @@
+{
+  "name": "jlbousing/outlook-calendar-sdk",
+  "description": "PHP SDK for Microsoft Outlook Calendar API",
+  "type": "library",
+  "require": {
+    "php": "^7.4|^8.0",
+    "guzzlehttp/guzzle": "^7.0",
+    "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "OutlookCalendarSDK\\": "src/"
+    }
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jorge Luis Bou-saad",
+      "email": "jbousing@gmail.com"
+    }
+  ]
+}
