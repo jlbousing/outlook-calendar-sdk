@@ -1,12 +1,13 @@
 # SDK de Outlook Calendar para PHP
 
-Este paquete proporciona una integración sencilla con la API de Microsoft Outlook Calendar para aplicaciones PHP. Permite gestionar eventos, reuniones y citas en calendarios de Outlook/Office 365.
+Este paquete proporciona una integración sencilla con la API de Microsoft Outlook Calendar para aplicaciones PHP. Permite gestionar eventos, reuniones y citas en calendarios de Outlook/Office 365, incluyendo soporte completo para reuniones de Microsoft Teams.
 
 ## Requisitos
 
 - PHP 7.4 o superior
 - Extensión PHP JSON
 - Cuenta de Microsoft y una aplicación registrada en Azure Portal
+- Permisos necesarios para reuniones en línea (Teams)
 
 ## Instalación
 
@@ -23,7 +24,9 @@ Para usar el SDK, necesitarás registrar una aplicación en el [Portal de Azure]
 1. Inicia sesión en el [Portal de Azure](https://portal.azure.com)
 2. Navega a "Azure Active Directory" > "Registros de aplicaciones"
 3. Crea una nueva aplicación
-4. Configura los permisos necesarios (mínimo: `Calendars.ReadWrite`)
+4. Configura los permisos necesarios:
+   - `Calendars.ReadWrite` (para gestión básica del calendario)
+   - `OnlineMeetings.ReadWrite` (para reuniones de Teams)
 5. Añade una URL de redirección (por ejemplo, `http://localhost/callback.php`)
 6. Crea un secreto de cliente
 
@@ -55,7 +58,7 @@ $accessToken = $tokenData['access_token'];
 // Crear un servicio de eventos
 $eventService = new EventService($accessToken);
 
-// Crear un nuevo evento
+// Crear un nuevo evento con Teams
 $startTime = new DateTime();
 $startTime->modify('+1 day');
 $endTime = clone $startTime;
@@ -66,14 +69,17 @@ $event = new Event(
     $startTime,
     $endTime,
     '<p>Discutiremos los avances del proyecto.</p>',
-    'Sala de conferencias'
+    'Microsoft Teams'
 );
+
+// Habilitar la reunión de Teams
+$event->setOnlineMeeting(true);
 
 // Publicar el evento en el calendario
 $createdEvent = $eventService->createEvent($event);
 
-// Listar eventos
-$events = $eventService->listEvents(['$top' => 10]);
+// Obtener la URL de la reunión de Teams
+$teamsUrl = $event->getOnlineMeetingJoinUrl();
 ```
 
 ## Funcionalidades principales
@@ -119,12 +125,41 @@ $event->addAttendee(new Attendee('usuario@ejemplo.com', 'Nombre Usuario', 'requi
 ### Configurar reuniones online (Teams)
 
 ```php
-$event->setOnlineMeeting(true, 'teamsForBusiness');
+// Crear un evento con Teams
+$event = new Event('Reunión virtual', $start, $end);
+$event->setOnlineMeeting(true); // Habilitar Teams
+
+// Crear el evento
+$createdEvent = $eventService->createEvent($event);
+
+// Obtener la URL de la reunión
+$joinUrl = $event->getOnlineMeetingJoinUrl();
+
+// Configurar opciones adicionales
+$event->setAllowNewTimeProposals(true); // Permitir proponer nuevos horarios
 ```
 
-## Ejemplos completos
+### Características de reuniones Teams
 
-Consulta los archivos `ejemplo.php` y `callback.php` incluidos para ver ejemplos completos de uso del SDK.
+- Generación automática de enlaces de reunión
+- Integración con el calendario de Outlook
+- Soporte para propuestas de nuevos horarios
+- URLs únicas para unirse a la reunión
+- Notificaciones automáticas por correo a los participantes
+
+## Manejo de respuestas
+
+El SDK maneja automáticamente las respuestas de la API y actualiza los objetos Event con la información relevante:
+
+```php
+// La URL de Teams se establece automáticamente después de crear el evento
+$event = new Event('Reunión virtual', $start, $end);
+$event->setOnlineMeeting(true);
+$eventService->createEvent($event);
+
+// Obtener la URL de Teams
+$teamsUrl = $event->getOnlineMeetingJoinUrl();
+```
 
 ## Documentación de la API de Microsoft Graph
 

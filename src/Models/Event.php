@@ -14,6 +14,9 @@ class Event
     private $attendees = [];
     private $isOnlineMeeting = false;
     private $onlineMeetingProvider = 'teamsForBusiness';
+    private $allowNewTimeProposals = true;
+    private $onlineMeetingUrl;
+    private $onlineMeetingJoinUrl;
 
     public function __construct(
         string $subject,
@@ -42,6 +45,22 @@ class Event
         return $this;
     }
 
+    public function getOnlineMeetingUrl(): ?string
+    {
+        return $this->onlineMeetingUrl;
+    }
+
+    public function getOnlineMeetingJoinUrl(): ?string
+    {
+        return $this->onlineMeetingJoinUrl;
+    }
+
+    public function setAllowNewTimeProposals(bool $allow): self
+    {
+        $this->allowNewTimeProposals = $allow;
+        return $this;
+    }
+
     public function toArray(): array
     {
         $event = [
@@ -63,6 +82,7 @@ class Event
             ],
             'isOnlineMeeting' => $this->isOnlineMeeting,
             'onlineMeetingProvider' => $this->onlineMeetingProvider,
+            'allowNewTimeProposals' => $this->allowNewTimeProposals,
         ];
 
         if (!empty($this->attendees)) {
@@ -72,5 +92,14 @@ class Event
         }
 
         return $event;
+    }
+
+    public function updateFromResponse(array $response): self
+    {
+        if (isset($response['onlineMeeting'])) {
+            $this->onlineMeetingUrl = $response['onlineMeeting']['joinUrl'] ?? null;
+            $this->onlineMeetingJoinUrl = $response['onlineMeeting']['joinUrl'] ?? null;
+        }
+        return $this;
     }
 }

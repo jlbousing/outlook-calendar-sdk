@@ -31,7 +31,9 @@ class EventService
                 'json' => $event->toArray()
             ]);
 
-            return json_decode($response->getBody(), true);
+            $responseData = json_decode($response->getBody(), true);
+            $event->updateFromResponse($responseData);
+            return $responseData;
         } catch (\Exception $e) {
             throw new CalendarException('Failed to create event: ' . $e->getMessage());
         }
@@ -44,7 +46,9 @@ class EventService
                 'json' => $event->toArray()
             ]);
 
-            return json_decode($response->getBody(), true);
+            $responseData = json_decode($response->getBody(), true);
+            $event->updateFromResponse($responseData);
+            return $responseData;
         } catch (\Exception $e) {
             throw new CalendarException('Failed to update event: ' . $e->getMessage());
         }
